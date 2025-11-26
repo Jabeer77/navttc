@@ -18,6 +18,7 @@ import Product from './pages/product/index.tsx';
 import Dashboard from './pages/dashboard/index.tsx';
 import Users from './pages/dashboard/users/index.tsx';
 import DashboardProducts from './pages/dashboard/products/index.tsx';
+import { Toaster } from 'sonner';
 
 const router = createBrowserRouter([
   {
@@ -99,6 +100,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
     <RouterProvider router={router} />
+    <Toaster position="top-center" richColors />
     </Provider>
   </StrictMode>,
 )

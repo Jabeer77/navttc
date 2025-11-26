@@ -4,6 +4,7 @@ import { getProductBySlug } from "@/api/products";
 import type { IProduct } from "@/types";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/features/cart/cartSlice";
+import { toast } from "sonner";
 
 export default function ProductDetails({slug}: {slug: string | undefined}) {
   const [product, setProduct] = useState<IProduct | null>(null);
@@ -27,6 +28,7 @@ export default function ProductDetails({slug}: {slug: string | undefined}) {
       size: selectedSize
     })
     );
+    toast.success(`Added to cart!`);
   }
 
   useEffect(() => {
