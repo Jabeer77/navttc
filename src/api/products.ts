@@ -65,3 +65,22 @@ export async function getProductMetadata() {
     return null;
   }
 }
+
+export async function getProductBySlug(slug: string): Promise<IProduct | null> {
+  try {
+    const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/products/${slug}`);
+    if (!response.ok) {
+      throw new Error(`Error fetching product by slug: ${response.statusText}`);
+    }
+    const result = await response.json();
+    if(!result.success){
+      throw new Error(`Error fetching product by slug: ${result.message}`);
+    }
+    return result.data as IProduct;
+  }
+  catch (error: unknown) {
+    console.error("Failed to fetch product by slug:", (error as Error).message);
+    return null;
+  }
+}

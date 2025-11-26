@@ -1,21 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
+import { getProductBySlug } from "@/api/products";
+import type { IProduct } from "@/types";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/store/features/cart/cartSlice";
 
-const images = [
-  "/onelife-graphic.png",
-  "/onelife-graphic2.png",
-  "/onelife-graphic4.png",
-
-];
-
-const colors = ["#6B5F42", "#1D2B36", "#203A43", "#2E4A3E"];
-const sizes = ["Small", "Medium", "Large", "X-Large"];
-
-export default function ProductDetails(){
+export default function ProductDetails({slug}: {slug: string | undefined}) {
+  const [product, setProduct] = useState<IProduct | null>(null);
+  const colors = product?.variants.map(variant => variant.colorCode).filter((value, index, self) => value && self.indexOf(value) === index) as string[] || [];
+  const sizes = product?.variants.map(variant => variant.size).filter((value, index, self) => self.indexOf(value) === index) || [];
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(colors[0]);
-  const [selectedSize, setSelectedSize] = useState("Large");
+  const [selectedSize, setSelectedSize] = useState(sizes[0]);
   const [qty, setQty] = useState(0);
+  const dispatch = useDispatch();
+
+
+  const handleCart = () => {
+    if(!product) return;
+    if(qty < 1) return;
+    dispatch(
+      addToCart({
+      product: product!,
+      quantity: qty,
+      color: selectedColor,
+      size: selectedSize
+    })
+    );
+  }
+
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      const data = await getProductBySlug(slug!);
+      console.log("Product details:", data);
+      if(data){
+      setProduct(data);
+      }
+    }
+    if(slug) fetchProductDetails();
+  }, [slug]);
 
   return (
     <section className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -24,7 +47,7 @@ export default function ProductDetails(){
       <div className="flex gap-4">
     
         <div className="flex flex-col gap-4">
-          {images.map((img, index) => (
+          {product?.images?.map((img, index) => (
             <img
               key={index}
               src={img}
@@ -39,7 +62,7 @@ export default function ProductDetails(){
         
         <div className="flex-1">
           <img
-            src={images[selectedImage]}
+            src={product?.thumbnail}
             className="w-full h-[420px] object-cover rounded-xl border-2 border-blue-400"
           />
         </div>
@@ -47,36 +70,36 @@ export default function ProductDetails(){
 
       
       <div>
-        <h1 className="text-3xl font-extrabold mb-2">ONE LIFE GRAPHIC T-SHIRT</h1>
+        <h1 className="text-3xl font-extrabold mb-2">{product?.title}</h1>
 
         
         <div className="flex items-center gap-2 mb-3">
           <span className="text-yellow-500 text-xl">★★★★☆</span>
-          <span className="text-gray-600 text-sm">4.5/5</span>
+          <span className="text-gray-600 text-sm">{product?.rating}/5</span>
         </div>
 
         
         <div className="flex items-center gap-4 mb-4">
-          <span className="text-3xl font-bold">$260</span>
-          <span className="line-through text-gray-400 text-lg">$300</span>
+          <span className="text-3xl font-bold">{product?.finalPrice}</span>
+          <span className="line-through text-gray-400 text-lg">{product?.price}</span>
           <span className="text-red-500 text-sm bg-red-100 px-2 py-1 rounded-full">
-            -40%
+            {product?.discountPercentage}% OFF
           </span>
         </div>
 
         
         <p className="text-gray-600 leading-relaxed mb-6">
-          This graphic t-shirt which is perfect for any occasion. Crafted from a soft and breathable fabric, it offers superior comfort and style.
+          {product?.description}
         </p>
 
     
         <h3 className="text-sm font-semibold mb-2">Select Colors</h3>
-        <div className="flex gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-6">
           {colors.map((color) => (
             <div
               key={color}
-              className={`w-6 h-6 rounded-full cursor-pointer border ${
-                color === selectedColor ? "border-black" : "border-gray-300"
+              className={`size-7 rounded-full cursor-pointer border ${
+                color === selectedColor ? "border-black size-8" : "border-gray-300"
               }`}
               style={{ backgroundColor: color }}
               onClick={() => setSelectedColor(color)}
@@ -124,7 +147,7 @@ export default function ProductDetails(){
           </div>
 
           <div className="">
-          <button className="bg-black text-white  px-10 sm:px-30 py-3 rounded-full text-sm font-semibold hover:bg-gray-800 transition">
+          <button onClick={handleCart} className="bg-black text-white  px-10 sm:px-30 py-3 rounded-full text-sm font-semibold hover:bg-gray-800 transition">
             Add to Cart
           </button>
           </div>

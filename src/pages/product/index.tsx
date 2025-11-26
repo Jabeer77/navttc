@@ -8,7 +8,7 @@ export default function Product() {
   console.log("Product slug:", slug);
   return (
     <div>
-      <ProductDetails/>
+      <ProductDetails slug={slug}/>
       <ProductReviews/>
       <ProductRecommendations/>
     </div>
