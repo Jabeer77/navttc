@@ -21,7 +21,7 @@ export async function getProducts(
     const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}/products?
     ${maxPrice ? `maxPrice=${maxPrice}&` : ''}
-    ${color ? `colors=${color}&` : ''}
+    ${color ? `colors=${encodeURIComponent(color)}&` : ''}
     ${size ? `sizes=${size}&` : ''}
     ${category ? `category=${category}&` : ''}
     ${subCategory ? `subCategory=${subCategory}&` : ''}

@@ -15,20 +15,43 @@ export default function Shop() {
       sizes: []
     }
   });
-  const [color, setColor] = useState<string>("");
-  const [size, setSize] = useState<string>("");
+  const [color, setColor] = useState<string[]>([]);
+  const [size, setSize] = useState<string[]>([]);
   const [category, setCategory] = useState<string>("");
   const [subCategory, setSubCategory] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<number>(0);
 
+
   const handleColorChange = (event: React.MouseEvent<HTMLParagraphElement, MouseEvent>, color: string) => {
-    setColor(color);
-    event.currentTarget.parentElement?.querySelectorAll('p').forEach(p => p.style.scale = '1');
-    event.currentTarget.style.scale = '1.2';
+    console.log("Color clicked:", color);
+    setColor((prevColors) => {
+      if (!prevColors.includes(color)) {        
+        return [...prevColors, color];
+      }
+      return prevColors.filter(c => c !== color);
+    });
+    // event.currentTarget.parentElement?.querySelectorAll('p').forEach(p => p.style.scale = '1');
+    const currentScale = event.currentTarget.style.scale;
+    if (currentScale === '1.3') {
+      event.currentTarget.style.scale = '1';
+      return;
+    }
+    event.currentTarget.style.scale = '1.3';
   }
   const handleSizeChange = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, size: string) => {
-    setSize(size);
-    event.currentTarget.parentElement?.querySelectorAll('button').forEach(btn => btn.classList.remove('bg-black', 'text-white'));
+    setSize((prevSizes) => {
+      if (!prevSizes.includes(size)) {        
+        return [...prevSizes, size];
+      }
+      return prevSizes.filter(s => s !== size);
+    })
+    // event.currentTarget.parentElement?.querySelectorAll('button').forEach(btn => btn.classList.remove('bg-black', 'text-white'));
+    const isSelected = event.currentTarget.classList.contains('bg-black');
+    if (isSelected) {
+      event.currentTarget.classList.remove('bg-black', 'text-white');
+    event.currentTarget.classList.add('bg-gray-100');
+      return;
+    }
     event.currentTarget.classList.remove('bg-gray-100');
     event.currentTarget.classList.add('bg-black', 'text-white');
   }
@@ -44,13 +67,13 @@ export default function Shop() {
   }
   const handlePageChange = async (page: number) => {
     if(page<1 || page>products.totalPages) return;
-    const _products = await getProducts(maxPrice, color, size,category,subCategory,page);
+    const _products = await getProducts(maxPrice, color.join(','), size.join(','),category,subCategory,page);
     console.log("Filtered products:", _products);
     if (!_products) return;
     setProducts(_products);
   }
   const handleFilter = async () => {
-    const products = await getProducts(maxPrice, color, size,category,subCategory);
+    const products = await getProducts(maxPrice, color.join(','), size.join(','),category,subCategory);
     console.log("Filtered products:", products);
     if (!products) return;
     setProducts(products);
@@ -101,8 +124,8 @@ export default function Shop() {
           <div className="mb-6">
             <h3 className="font-medium mb-2">Colors</h3>
             <div className="grid grid-cols-5 gap-2">
-              {metadata && metadata.data.colorCode.map((color,index:number) => (
-                <p key={color} onClick={(e) => handleColorChange(e, metadata.data.colors[index])}
+              {metadata && metadata.data.colorCode.map((color) => (
+                <p key={color} onClick={(e) => handleColorChange(e, color)}
                  className={`w-6 h-6 rounded-full cursor-pointer border`}
                  style={{ backgroundColor: color }}>
                  </p>
