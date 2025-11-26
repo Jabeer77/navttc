@@ -1,9 +1,9 @@
 import { Link, Outlet } from "react-router";
-import cart from "@/assets/cart.svg"
 import search from "@/assets/search.svg"
 import menu from "@/assets/menu.svg"
 import searchMobile from "@/assets/search_mobile.svg"
 import Profile from "../profile";
+import Cart from "../cart";
 
 export default function Nav(){
   return(
@@ -34,9 +34,7 @@ export default function Nav(){
       </div>
       </form>
       <div className="flex items-center gap-4">
-        <button>
-          <img src={cart} alt="" />
-        </button>
+        <Cart/>
         <Profile/>
               </div>
       </div>
